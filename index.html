@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="miniapp-id" content="b2b-matchmaking" />
+  <meta name="miniapp-version" content="1.0.0" />
+  <title>B2B Matchmaking</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell" data-miniapp-root>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">B2B</div>
+        <div>
+          <p class="eyebrow">Islamic Economy Hub</p>
+          <h1>B2B Matchmaking</h1>
+        </div>
+      </div>
+
+      <div class="session-panel" aria-live="polite">
+        <span class="session-dot" id="sessionDot"></span>
+        <span id="sessionStatus">Контекст загружается</span>
+      </div>
+    </header>
+
+    <section class="user-strip">
+      <div>
+        <span class="muted-label">Участник</span>
+        <strong id="userName">Гость форума</strong>
+      </div>
+      <div>
+        <span class="muted-label">Роль</span>
+        <strong id="userRole">user</strong>
+      </div>
+      <div>
+        <span class="muted-label">Miniapp</span>
+        <strong id="miniappName">B2B Matchmaking</strong>
+      </div>
+    </section>
+
+    <main class="workspace">
+      <aside class="filters-card">
+        <div class="section-head">
+          <h2>Фильтры</h2>
+          <button id="clearFilters" type="button">Сбросить</button>
+        </div>
+
+        <label>
+          Поиск
+          <input id="searchInput" type="search" placeholder="Компания, страна, интерес" />
+        </label>
+
+        <label>
+          Направление
+          <select id="sectorFilter">
+            <option value="all">Все направления</option>
+            <option value="Islamic FinTech">Islamic FinTech</option>
+            <option value="Halal Food">Halal Food</option>
+            <option value="Logistics">Logistics</option>
+            <option value="Investment">Investment</option>
+            <option value="Education">Education</option>
+          </select>
+        </label>
+
+        <label>
+          Страна
+          <select id="countryFilter">
+            <option value="all">Все страны</option>
+            <option value="UAE">UAE</option>
+            <option value="Saudi Arabia">Saudi Arabia</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="Turkiye">Turkiye</option>
+            <option value="Russia">Russia</option>
+            <option value="Kazakhstan">Kazakhstan</option>
+          </select>
+        </label>
+
+        <div class="stats-grid">
+          <div>
+            <strong id="matchCount">0</strong>
+            <span>совпадений</span>
+          </div>
+          <div>
+            <strong id="requestCount">0</strong>
+            <span>заявок</span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content-card">
+        <div class="tabs" role="tablist" aria-label="Разделы miniapp">
+          <button class="tab active" type="button" data-tab="companies" role="tab">Компании</button>
+          <button class="tab" type="button" data-tab="requests" role="tab">Мои встречи</button>
+        </div>
+
+        <div id="companiesView">
+          <div class="cards-grid" id="companiesList"></div>
+        </div>
+
+        <div id="requestsView" class="hidden">
+          <div class="requests-panel">
+            <h2>Заявки на встречи</h2>
+            <p id="emptyRequests">Пока нет заявок. Выберите компанию и отправьте запрос на встречу.</p>
+            <div id="requestsList" class="requests-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal hidden" id="meetingModal" role="dialog" aria-modal="true" aria-labelledby="modalCompanyName">
+    <div class="modal-card">
+      <button class="modal-close" id="closeModal" type="button" aria-label="Закрыть">×</button>
+      <p class="eyebrow">B2B Meeting Request</p>
+      <h2 id="modalCompanyName">Компания</h2>
+      <p id="modalCompanyMeta" class="modal-meta">Страна · Направление</p>
+
+      <label>
+        Тема встречи
+        <input id="meetingTopic" type="text" placeholder="Партнерство, инвестиции, экспорт" />
+      </label>
+
+      <label>
+        Предпочтительное время
+        <select id="meetingTime">
+          <option>Сегодня, 14:30</option>
+          <option>Сегодня, 16:00</option>
+          <option>Завтра, 10:00</option>
+          <option>Завтра, 12:30</option>
+        </select>
+      </label>
+
+      <button class="primary-btn" id="sendRequest" type="button">Отправить заявку</button>
+    </div>
+  </div>
+
+  <script src="./miniapp-sdk.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

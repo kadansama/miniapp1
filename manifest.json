@@ -1,0 +1,28 @@
+{
+  "id": "b2b-matchmaking",
+  "name": "B2B Matchmaking",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "description": "Widget-ready miniapp for forum participant matchmaking and meeting requests.",
+  "integration": {
+    "modes": ["standalone", "launch_token", "host_bridge"],
+    "launchTokenQuery": "launch_token",
+    "contextEndpoint": "/api/miniapp-sessions/{launch_token}",
+    "messages": {
+      "fromMiniapp": [
+        "MINIAPP_READY",
+        "MINIAPP_CONTEXT_REQUESTED",
+        "MINIAPP_OPENED",
+        "MINIAPP_RESIZE",
+        "MEETING_REQUEST_CREATED",
+        "MINIAPP_CLOSE_REQUESTED"
+      ],
+      "fromHost": [
+        "MINIAPP_CONTEXT",
+        "MINIAPP_LOGOUT",
+        "MINIAPP_THEME"
+      ]
+    }
+  },
+  "permissions": ["profile:read", "meeting:create"]
+}

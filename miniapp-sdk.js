@@ -2,7 +2,7 @@
   "use strict";
 
   const MESSAGE_SOURCE = "miniapp-platform-widget";
-  const DEFAULT_CONTEXT_TIMEOUT_MS = 700;
+  const DEFAULT_CONTEXT_TIMEOUT_MS = 2000;
   const AUTH_TOKENS_STORAGE_KEY = "authTokens";
 
   const listeners = new Map();
@@ -304,12 +304,12 @@
       console.warn("Miniapp auth context unavailable:", error);
     }
 
-    currentContext = options.mockContext;
+    currentContext = null;
 
     return {
       context: currentContext,
-      mode: "mock",
-      source: "mock",
+      mode: "no_context",
+      source: "none",
     };
   }
 

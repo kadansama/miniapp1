@@ -61,20 +61,6 @@ const companies = [
   },
 ];
 
-const mockContext = {
-  user: {
-    id: "demo-user",
-    name: "Ahmed Al-Farsi",
-    email: "ahmed@example.com",
-    role: "user",
-  },
-  miniapp: {
-    id: "b2b-matchmaking",
-    title: "B2B Matchmaking",
-  },
-  expires_at: null,
-};
-
 let selectedCompany = null;
 let meetingRequests = [];
 let isHostSessionActive = true;
@@ -110,11 +96,11 @@ function setSessionState(mode) {
     host: "SSO активен через host bridge",
     launch_token: "SSO активен через launch token",
     access_token: "SSO активен через access token админки",
-    mock: "Standalone demo context",
+    no_context: "SSO контекст не получен",
     logout: "Сессия завершена host-приложением",
   };
 
-  elements.sessionStatus.textContent = labels[mode] || labels.mock;
+  elements.sessionStatus.textContent = labels[mode] || labels.no_context;
   elements.sessionDot.dataset.mode = mode;
 }
 
@@ -124,10 +110,10 @@ function normalizeContext(context) {
 
   return {
     user: {
-      id: user.id || user.user_id || "demo-user",
-      name: user.name || user.email || "Гость форума",
+      id: user.id || user.user_id || "",
+      name: user.name || user.email || "Контекст не получен",
       email: user.email || "",
-      role: user.role || "user",
+      role: user.role || "-",
     },
     miniapp: {
       id: miniapp.id || "b2b-matchmaking",
@@ -268,7 +254,11 @@ function addMeetingRequest() {
 
   const topic = elements.meetingTopic.value.trim() || "B2B partnership discussion";
   const time = elements.meetingTime.value;
-  const context = normalizeContext(window.MiniappSDK.getContext() || mockContext);
+  const context = normalizeContext(window.MiniappSDK.getContext());
+
+  if (!context.user.id) {
+    return;
+  }
 
   const request = {
     id: `meeting_${Date.now()}`,
@@ -388,7 +378,6 @@ async function init() {
   const result = await window.MiniappSDK.init({
     miniappId: "b2b-matchmaking",
     miniappName: "B2B Matchmaking",
-    mockContext,
   });
 
   applyContext(result.context, result.mode);

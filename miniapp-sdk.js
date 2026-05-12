@@ -128,6 +128,7 @@
   function waitForHostContext(timeoutMs) {
     return new Promise((resolve) => {
       let settled = false;
+      const requestTimers = [];
 
       const done = (context, meta) => {
         if (settled) {
@@ -135,6 +136,7 @@
         }
 
         settled = true;
+        requestTimers.forEach((timer) => window.clearTimeout(timer));
         resolve(context ? { context, meta } : null);
       };
 
@@ -171,11 +173,19 @@
       }
 
       window.addEventListener("message", onMessage);
-      postToHost("MINIAPP_READY", {
-        wantsContext: true,
-        supports: ["context", "events", "logout", "resize"],
+
+      function requestContext() {
+        postToHost("MINIAPP_READY", {
+          wantsContext: true,
+          supports: ["context", "events", "logout", "resize"],
+        });
+        postToHost("MINIAPP_CONTEXT_REQUESTED", {});
+      }
+
+      requestContext();
+      [100, 300, 700, 1200].forEach((delay) => {
+        requestTimers.push(window.setTimeout(requestContext, delay));
       });
-      postToHost("MINIAPP_CONTEXT_REQUESTED", {});
     });
   }
 
@@ -284,8 +294,8 @@
           source: "api",
         };
       }
-    } catch (error) {
-      console.debug("Miniapp session context unavailable:", error);
+    } catch {
+      // The host bridge or access-token fallback can still provide context.
     }
 
     try {

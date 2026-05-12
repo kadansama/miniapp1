@@ -112,6 +112,19 @@
     });
   }
 
+  function acceptHostContext(context, meta) {
+    if (!context) {
+      return;
+    }
+
+    currentContext = context;
+    emitLocal("context", {
+      context: currentContext,
+      mode: meta?.mode || "host",
+      source: "host",
+    });
+  }
+
   function waitForHostContext(timeoutMs) {
     return new Promise((resolve) => {
       let settled = false;
@@ -137,11 +150,15 @@
         const type = data.type;
 
         if (type === "MINIAPP_CONTEXT" || type === "HOST_CONTEXT" || type === "miniapp:context") {
-          window.clearTimeout(timer);
-          done(data.payload || data.context, {
+          const context = data.payload || data.context;
+          const meta = {
             mode: "host",
             origin: event.origin,
-          });
+          };
+
+          acceptHostContext(context, meta);
+          window.clearTimeout(timer);
+          done(context, meta);
         }
 
         if (type === "MINIAPP_LOGOUT" || type === "HOST_LOGOUT" || type === "miniapp:logout") {
@@ -268,7 +285,7 @@
         };
       }
     } catch (error) {
-      console.warn("Miniapp session context unavailable:", error);
+      console.debug("Miniapp session context unavailable:", error);
     }
 
     try {

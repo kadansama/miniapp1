@@ -381,6 +381,10 @@ function setupEvents() {
 }
 
 async function init() {
+  window.MiniappSDK.on("context", ({ context, mode }) => {
+    applyContext(context, mode);
+  });
+
   const result = await window.MiniappSDK.init({
     miniappId: "b2b-matchmaking",
     miniappName: "B2B Matchmaking",

@@ -3,6 +3,7 @@
 
   const MESSAGE_SOURCE = "miniapp-platform-widget";
   const DEFAULT_CONTEXT_TIMEOUT_MS = 700;
+  const AUTH_TOKENS_STORAGE_KEY = "authTokens";
 
   const listeners = new Map();
   let currentContext = null;
@@ -48,6 +49,33 @@
     const params = getSearchParams();
 
     return params.get("launch_token") || params.get("sessionId") || "";
+  }
+
+  function getStoredAccessToken() {
+    try {
+      const rawTokens = window.localStorage.getItem(AUTH_TOKENS_STORAGE_KEY);
+
+      if (!rawTokens) {
+        return "";
+      }
+
+      const tokens = JSON.parse(rawTokens);
+
+      return typeof tokens?.access_token === "string" ? tokens.access_token : "";
+    } catch {
+      return "";
+    }
+  }
+
+  function getAccessToken() {
+    const params = getSearchParams();
+
+    return (
+      params.get("access_token") ||
+      params.get("token") ||
+      window.MINIAPP_ACCESS_TOKEN ||
+      getStoredAccessToken()
+    );
   }
 
   function postToHost(type, payload) {
@@ -165,6 +193,47 @@
     };
   }
 
+  async function fetchContextByAccessToken(options) {
+    const accessToken = getAccessToken();
+
+    if (!accessToken) {
+      return null;
+    }
+
+    const apiBase = getPlatformApiBase(options);
+    const url = `${apiBase}/api/auth/me`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Miniapp auth context request failed: ${response.status}`);
+    }
+
+    const user = await response.json();
+
+    return {
+      context: {
+        user,
+        miniapp: {
+          id: lastInitOptions?.miniappId || "unknown",
+          title: lastInitOptions?.miniappName || "Miniapp",
+        },
+        expires_at: null,
+      },
+      meta: {
+        mode: "access_token",
+        apiBase: apiBase || window.location.origin,
+      },
+    };
+  }
+
   async function init(options) {
     lastInitOptions = {
       miniappId: options.miniappId,
@@ -200,6 +269,22 @@
       }
     } catch (error) {
       console.warn("Miniapp session context unavailable:", error);
+    }
+
+    try {
+      const authContext = await fetchContextByAccessToken(options);
+
+      if (authContext?.context) {
+        currentContext = authContext.context;
+
+        return {
+          context: currentContext,
+          mode: authContext.meta.mode,
+          source: "api",
+        };
+      }
+    } catch (error) {
+      console.warn("Miniapp auth context unavailable:", error);
     }
 
     currentContext = options.mockContext;
@@ -250,6 +335,7 @@
   window.MiniappSDK = {
     close,
     emit,
+    getAccessToken,
     getContext,
     getLaunchToken,
     init,

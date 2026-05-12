@@ -109,6 +109,7 @@ function setSessionState(mode) {
   const labels = {
     host: "SSO активен через host bridge",
     launch_token: "SSO активен через launch token",
+    access_token: "SSO активен через access token админки",
     mock: "Standalone demo context",
     logout: "Сессия завершена host-приложением",
   };
@@ -395,6 +396,7 @@ async function init() {
     miniapp_id: "b2b-matchmaking",
     mode: result.mode,
     launch_token_present: Boolean(window.MiniappSDK.getLaunchToken()),
+    access_token_present: Boolean(window.MiniappSDK.getAccessToken()),
   });
 }
 
